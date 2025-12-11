@@ -5,7 +5,13 @@ import CourseModal from "../components/modals/CourseModal";
 import "./CursosPage.css";
 
 // Opciones para filtros
-const NIVELES_FILTRO = ["Todos los niveles", "Diplomado", "Licenciatura", "Posgrado"];
+const NIVELES_FILTRO = [
+  "Todos los niveles",
+  "Diplomado",
+  "Licenciatura",
+  "Posgrado",
+];
+
 const MODALIDADES_FILTRO = [
   "Todas las modalidades",
   "Presencial",
@@ -13,13 +19,22 @@ const MODALIDADES_FILTRO = [
   "Mixta",
 ];
 
+// Helper para nombre completo de docente
+function formatDocenteNombre(doc) {
+  if (!doc) return "";
+  return [doc.nombre, doc.apellido_paterno, doc.apellido_materno]
+    .filter(Boolean)
+    .join(" ");
+}
+
 function CursosPage() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
   const [nivelFilter, setNivelFilter] = useState("Todos los niveles");
-  const [modalidadFilter, setModalidadFilter] = useState("Todas las modalidades");
+  const [modalidadFilter, setModalidadFilter] =
+    useState("Todas las modalidades");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
@@ -35,6 +50,9 @@ function CursosPage() {
     fetchCatalogs();
   }, []);
 
+  // -----------------------------
+  // CARGA DE CURSOS
+  // -----------------------------
   async function fetchCourses() {
     try {
       setLoading(true);
@@ -57,7 +75,10 @@ function CursosPage() {
             nombre_area
           ),
           docente (
-            nombre_docente
+            id_docente,
+            nombre,
+            apellido_paterno,
+            apellido_materno
           )
         `
         )
@@ -69,12 +90,26 @@ function CursosPage() {
         return;
       }
 
-      setCourses(data || []);
+      // Normalizar para que curso.docente.nombre_docente exista
+      const normalizados = (data || []).map((curso) => ({
+        ...curso,
+        docente: curso.docente
+          ? {
+              ...curso.docente,
+              nombre_docente: formatDocenteNombre(curso.docente),
+            }
+          : null,
+      }));
+
+      setCourses(normalizados);
     } finally {
       setLoading(false);
     }
   }
 
+  // -----------------------------
+  // CARGA DE CATÁLOGOS
+  // -----------------------------
   async function fetchCatalogs() {
     // Áreas académicas
     const { data: areasData, error: areasError } = await supabase
@@ -88,20 +123,27 @@ function CursosPage() {
       setAreas(areasData || []);
     }
 
-    // Docentes
+    // Docentes (con nombre completo)
     const { data: docentesData, error: docentesError } = await supabase
       .from("docente")
-      .select("id_docente, nombre_docente")
-      .order("nombre_docente", { ascending: true });
+      .select("id_docente, nombre, apellido_paterno, apellido_materno")
+      .order("apellido_paterno", { ascending: true });
 
     if (docentesError) {
       console.error("Error al cargar docentes:", docentesError);
     } else {
-      setDocentes(docentesData || []);
+      const normalizados =
+        docentesData?.map((doc) => ({
+          id_docente: doc.id_docente,
+          nombre_docente: formatDocenteNombre(doc),
+        })) || [];
+      setDocentes(normalizados);
     }
   }
 
-  // Lista filtrada (por búsqueda, nivel y modalidad)
+  // -----------------------------
+  // FILTROS
+  // -----------------------------
   const filteredCourses = useMemo(() => {
     const searchTerm = search.toLowerCase().trim();
 
@@ -122,25 +164,27 @@ function CursosPage() {
     });
   }, [courses, search, nivelFilter, modalidadFilter]);
 
-  // Abrir modal para nuevo curso
+  // -----------------------------
+  // MODAL
+  // -----------------------------
   function handleOpenNew() {
     setEditingCourse(null);
     setIsModalOpen(true);
   }
 
-  // Abrir modal para editar curso
   function handleEdit(course) {
     setEditingCourse(course);
     setIsModalOpen(true);
   }
 
-  // Cerrar modal
   function handleCloseModal() {
     setIsModalOpen(false);
     setEditingCourse(null);
   }
 
-  // Guardar (crear / actualizar)
+  // -----------------------------
+  // GUARDAR (crear / actualizar)
+  // -----------------------------
   async function handleSaveCourse(payload) {
     try {
       setSaving(true);
@@ -173,7 +217,9 @@ function CursosPage() {
     }
   }
 
-  // Eliminar
+  // -----------------------------
+  // ELIMINAR CURSO
+  // -----------------------------
   async function handleDelete(course) {
     const ok = window.confirm(
       `¿Seguro que deseas eliminar el curso:\n\n${course.nombre_curso}?`
@@ -187,13 +233,26 @@ function CursosPage() {
 
     if (error) {
       console.error("Error al eliminar curso:", error);
-      alert("Ocurrió un error al eliminar el curso: " + error.message);
+
+      // Si en el futuro ya tienes alumnos inscritos,
+      // esta FK te va a proteger:
+      if (error.code === "23503") {
+        alert(
+          "No se puede eliminar este curso porque tiene alumnos inscritos.\n\n" +
+            "Primero da de baja o reasigna a los alumnos."
+        );
+      } else {
+        alert("Ocurrió un error al eliminar el curso: " + error.message);
+      }
       return;
     }
 
     setCourses((prev) => prev.filter((c) => c.id_curso !== course.id_curso));
   }
 
+  // -----------------------------
+  // RENDER
+  // -----------------------------
   return (
     <main className="cursos-page">
       <header className="cursos-header">

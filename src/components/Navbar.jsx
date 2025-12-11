@@ -51,6 +51,24 @@ function Navbar() {
           </NavLink>
 
           <NavLink
+            to="/carreras"
+            className={({ isActive }) =>
+              "nav-link" + (isActive ? " nav-link-active" : "")
+            }
+          >
+            Carreras
+          </NavLink>
+
+          <NavLink
+            to="/alumnos"
+            className={({ isActive }) =>
+              "nav-link" + (isActive ? " nav-link-active" : "")
+            }
+          >
+            Alumnos
+          </NavLink>
+
+          <NavLink
             to="/docentes"
             className={({ isActive }) =>
               "nav-link" + (isActive ? " nav-link-active" : "")
@@ -67,6 +85,8 @@ function Navbar() {
           >
             Áreas académicas
           </NavLink>
+
+
         </nav>
       </div>
     </header>

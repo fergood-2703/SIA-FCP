@@ -5,6 +5,7 @@ import "./Modal.css";
 
 const EMPTY_FORM = {
   nombre_area: "",
+  descripcion: "",
 };
 
 function AreaModal({ isOpen, onClose, onSave, initialData, saving }) {
@@ -15,6 +16,7 @@ function AreaModal({ isOpen, onClose, onSave, initialData, saving }) {
       if (initialData) {
         setFormData({
           nombre_area: initialData.nombre_area ?? "",
+          descripcion: initialData.descripcion ?? "",
         });
       } else {
         setFormData(EMPTY_FORM);
@@ -40,6 +42,8 @@ function AreaModal({ isOpen, onClose, onSave, initialData, saving }) {
 
     const payload = {
       nombre_area: formData.nombre_area.trim(),
+      // descripción opcional: si viene vacía mandamos null
+      descripcion: formData.descripcion.trim() || null,
     };
 
     await onSave(payload);
@@ -62,6 +66,21 @@ function AreaModal({ isOpen, onClose, onSave, initialData, saving }) {
             value={formData.nombre_area}
             onChange={handleChange}
             required
+          />
+        </div>
+
+        <div className="modal-field">
+          <label className="modal-label" htmlFor="descripcion">
+            Descripción del área (opcional)
+          </label>
+          <textarea
+            id="descripcion"
+            name="descripcion"
+            className="modal-input"
+            rows={3}
+            value={formData.descripcion}
+            onChange={handleChange}
+            placeholder="Ejemplo: Disciplinas que estudian la condición humana y la cultura."
           />
         </div>
 

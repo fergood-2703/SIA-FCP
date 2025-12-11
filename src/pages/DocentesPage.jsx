@@ -4,75 +4,118 @@ import { supabase } from "../supabaseClient";
 import DocenteModal from "../components/modals/DocenteModal";
 import "./DocentesPage.css";
 
+function buildNombreCompleto(docente) {
+  const partes = [
+    docente.nombre,
+    docente.apellido_paterno,
+    docente.apellido_materno,
+  ].filter(Boolean);
+  return partes.join(" ");
+}
+
 function DocentesPage() {
   const [docentes, setDocentes] = useState([]);
+  const [areas, setAreas] = useState([]);
+
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const [search, setSearch] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDocente, setEditingDocente] = useState(null);
-  const [saving, setSaving] = useState(false);
 
-  // Cargar docentes
   useEffect(() => {
-    fetchDocentes();
+    fetchCatalogs();
   }, []);
 
-  async function fetchDocentes() {
+  async function fetchCatalogs() {
+    setLoading(true);
     try {
-      setLoading(true);
+      // 1) Áreas académicas
+      const { data: areasData, error: areasError } = await supabase
+        .from("area_academica")
+        .select("id_area, nombre_area")
+        .order("nombre_area", { ascending: true });
 
-      const { data, error } = await supabase
-        .from("docente")
-        .select("id_docente, nombre_docente")
-        .order("id_docente", { ascending: true });
-
-      if (error) {
-        console.error("Error al cargar docentes:", error);
-        alert("Ocurrió un error al cargar los docentes: " + error.message);
+      if (areasError) {
+        console.error("Error al cargar áreas académicas:", areasError);
+        alert(
+          "Ocurrió un error al cargar las áreas académicas: " +
+            areasError.message
+        );
         return;
       }
 
-      setDocentes(data || []);
+      setAreas(areasData || []);
+
+      // 2) Docentes con join de área
+      const { data: docentesData, error: docentesError } = await supabase
+        .from("docente")
+        .select(
+          `
+          id_docente,
+          nombre,
+          apellido_paterno,
+          apellido_materno,
+          email,
+          telefono,
+          fecha_ingreso,
+          nivel_academico,
+          id_area,
+          area_academica (
+            nombre_area
+          )
+        `
+        )
+        .order("id_docente", { ascending: true });
+
+      if (docentesError) {
+        console.error("Error al cargar docentes:", docentesError);
+        alert("Ocurrió un error al cargar los docentes: " + docentesError.message);
+        return;
+      }
+
+      setDocentes(docentesData || []);
     } finally {
       setLoading(false);
     }
   }
 
-  // Lista filtrada por búsqueda
   const filteredDocentes = useMemo(() => {
     const term = search.toLowerCase().trim();
 
-    return docentes.filter((doc) => {
+    return docentes.filter((d) => {
+      const nombreCompleto = buildNombreCompleto(d).toLowerCase();
+      const areaNombre = d.area_academica?.nombre_area?.toLowerCase() ?? "";
+      const email = d.email?.toLowerCase() ?? "";
+
       const matchSearch =
         !term ||
-        doc.nombre_docente?.toLowerCase().includes(term) ||
-        String(doc.id_docente).includes(term);
+        nombreCompleto.includes(term) ||
+        areaNombre.includes(term) ||
+        email.includes(term) ||
+        String(d.id_docente).includes(term);
 
       return matchSearch;
     });
   }, [docentes, search]);
 
-  // Abrir modal para nuevo docente
   function handleOpenNew() {
     setEditingDocente(null);
     setIsModalOpen(true);
   }
 
-  // Abrir modal para editar docente
   function handleEdit(docente) {
     setEditingDocente(docente);
     setIsModalOpen(true);
   }
 
-  // Cerrar modal
   function handleCloseModal() {
     setIsModalOpen(false);
     setEditingDocente(null);
   }
 
-  // Guardar (crear / actualizar)
   async function handleSaveDocente(payload) {
     try {
       setSaving(true);
@@ -85,7 +128,7 @@ function DocentesPage() {
 
         if (error) {
           console.error("Error al actualizar docente:", error);
-          alert("Error al actualizar docente: " + error.message);
+          alert("Error al actualizar al docente: " + error.message);
           return;
         }
       } else {
@@ -93,22 +136,23 @@ function DocentesPage() {
 
         if (error) {
           console.error("Error al crear docente:", error);
-          alert("Error al crear docente: " + error.message);
+          alert("Error al crear al docente: " + error.message);
           return;
         }
       }
 
-      await fetchDocentes();
+      await fetchCatalogs();
       handleCloseModal();
     } finally {
       setSaving(false);
     }
   }
 
-  // Eliminar
   async function handleDelete(docente) {
     const ok = window.confirm(
-      `¿Seguro que deseas eliminar al docente:\n\n${docente.nombre_docente}?`
+      `¿Seguro que deseas eliminar al docente:\n\n${buildNombreCompleto(
+        docente
+      )}?`
     );
     if (!ok) return;
 
@@ -119,7 +163,15 @@ function DocentesPage() {
 
     if (error) {
       console.error("Error al eliminar docente:", error);
-      alert("Ocurrió un error al eliminar al docente: " + error.message);
+
+      if (error.code === "23503") {
+        alert(
+          "No se puede eliminar este docente porque está asignado a uno o más cursos.\n\n" +
+            "Primero reasigna o elimina los cursos que tiene asignados."
+        );
+      } else {
+        alert("Ocurrió un error al eliminar al docente: " + error.message);
+      }
       return;
     }
 
@@ -135,7 +187,7 @@ function DocentesPage() {
           <p className="docentes-badge">Panel de catálogo</p>
           <h1 className="docentes-title">Docentes</h1>
           <p className="docentes-subtitle">
-            Administra el listado de docentes del campus.
+            Administra el personal académico asignable a los cursos.
           </p>
         </div>
 
@@ -158,7 +210,7 @@ function DocentesPage() {
           <div className="docentes-search-wrapper">
             <input
               type="text"
-              placeholder="Buscar por nombre o ID"
+              placeholder="Buscar por nombre, área o correo"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="docentes-search-input"
@@ -180,7 +232,12 @@ function DocentesPage() {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Nombre del docente</th>
+                  <th>Nombre completo</th>
+                  <th>Área académica</th>
+                  <th>Nivel académico</th>
+                  <th>Correo</th>
+                  <th>Teléfono</th>
+                  <th>Fecha ingreso</th>
                   <th className="docentes-col-actions">Acciones</th>
                 </tr>
               </thead>
@@ -188,7 +245,16 @@ function DocentesPage() {
                 {filteredDocentes.map((doc) => (
                   <tr key={doc.id_docente}>
                     <td>{doc.id_docente}</td>
-                    <td>{doc.nombre_docente}</td>
+                    <td>{buildNombreCompleto(doc)}</td>
+                    <td>{doc.area_academica?.nombre_area || "—"}</td>
+                    <td>{doc.nivel_academico || "—"}</td>
+                    <td>{doc.email || "—"}</td>
+                    <td>{doc.telefono || "—"}</td>
+                    <td>
+                      {doc.fecha_ingreso
+                        ? new Date(doc.fecha_ingreso).toLocaleDateString()
+                        : "—"}
+                    </td>
                     <td className="docentes-col-actions">
                       <button
                         type="button"
@@ -219,6 +285,7 @@ function DocentesPage() {
         onSave={handleSaveDocente}
         initialData={editingDocente}
         saving={saving}
+        areas={areas}
       />
     </main>
   );

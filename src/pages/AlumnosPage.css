@@ -1,0 +1,214 @@
+/* src/pages/AlumnosPage.css */
+
+/* CONTENEDOR GENERAL ------------------------------------------ */
+
+.alumnos-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 40px;
+}
+
+/* HEADER ------------------------------------------------------ */
+
+.alumnos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* Badge lo dejamos verde para distinguir “Gestión de estudiantes” */
+.alumnos-badge {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #ecfdf5;
+  color: #15803d;
+  margin-bottom: 6px;
+}
+
+.alumnos-title {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+.alumnos-subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+/* BOTÓN PRINCIPAL (AZUL, IGUAL QUE CURSOS/DOCENTES) ---------- */
+
+.alumnos-btn-primary {
+  border: none;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 10px 18px rgba(37, 99, 235, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease,
+    background 0.12s ease;
+}
+
+.alumnos-btn-new {
+  margin-top: 4px;
+}
+
+.alumnos-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(37, 99, 235, 0.32);
+}
+
+.alumnos-btn-plus {
+  font-size: 1.2rem;
+}
+
+/* TOOLBAR ----------------------------------------------------- */
+
+.alumnos-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.alumnos-counter {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.alumnos-filters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.alumnos-search-wrapper {
+  position: relative;
+}
+
+.alumnos-search-input {
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  font-size: 0.9rem;
+  min-width: 260px;
+}
+
+.alumnos-search-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+.alumnos-select {
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  font-size: 0.85rem;
+  background-color: #ffffff;
+}
+
+/* TABLA / CARD ------------------------------------------------ */
+
+.alumnos-table-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.12);
+  padding: 14px 0 10px;
+}
+
+.alumnos-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.alumnos-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.alumnos-table thead {
+  background: #f9fafb;
+}
+
+.alumnos-table th,
+.alumnos-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.alumnos-table th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+}
+
+.alumnos-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.alumnos-col-number {
+  text-align: right;
+}
+
+.alumnos-col-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* BOTONES DE FILA (AZULES/ROJOS COMO LAS OTRAS PÁGINAS) ------ */
+
+.alumnos-btn {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 6px 11px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+.alumnos-btn-edit {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.alumnos-btn-edit:hover {
+  background-color: #dbeafe;
+}
+
+.alumnos-btn-delete {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.alumnos-btn-delete:hover {
+  background-color: #fee2e2;
+}
+
+/* ESTADOS VACÍOS / MENSAJES ---------------------------------- */
+
+.alumnos-empty {
+  padding: 24px 20px 20px;
+  font-size: 0.9rem;
+  color: #6b7280;
+}

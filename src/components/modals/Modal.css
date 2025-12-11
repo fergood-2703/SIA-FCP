@@ -5,10 +5,14 @@
   inset: 0;
   background: rgba(15, 23, 42, 0.35);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 40;
+  align-items: flex-start;
+  padding: 40px 16px;
+  overflow-y: auto;
+  z-index: 9999;  /* 🔺 por encima del navbar */
 }
+
+
 
 .modal-dialog {
   width: 100%;
@@ -17,7 +21,12 @@
   border-radius: 22px;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.45);
   padding: 20px 22px 18px;
+  box-sizing: border-box;
+
+  max-height: 90vh;   /* NUEVO: no puede ser más alto que la ventana */
+  overflow-y: auto;   /* NUEVO: scroll interno cuando se llena */
 }
+
 
 .modal-header {
   display: flex;

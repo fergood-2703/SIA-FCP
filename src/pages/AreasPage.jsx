@@ -25,12 +25,14 @@ function AreasPage() {
 
       const { data, error } = await supabase
         .from("area_academica")
-        .select("id_area, nombre_area")
+        .select("id_area, nombre_area, descripcion")
         .order("id_area", { ascending: true });
 
       if (error) {
         console.error("Error al cargar áreas académicas:", error);
-        alert("Ocurrió un error al cargar las áreas académicas: " + error.message);
+        alert(
+          "Ocurrió un error al cargar las áreas académicas: " + error.message
+        );
         return;
       }
 
@@ -47,6 +49,7 @@ function AreasPage() {
       const matchSearch =
         !term ||
         area.nombre_area?.toLowerCase().includes(term) ||
+        area.descripcion?.toLowerCase().includes(term) ||
         String(area.id_area).includes(term);
 
       return matchSearch;
@@ -103,24 +106,38 @@ function AreasPage() {
   }
 
   async function handleDelete(area) {
-    const ok = window.confirm(
-      `¿Seguro que deseas eliminar el área académica:\n\n${area.nombre_area}?`
-    );
-    if (!ok) return;
+  const ok = window.confirm(
+    `¿Seguro que deseas eliminar el área académica:\n\n${area.nombre_area}?`
+  );
+  if (!ok) return;
 
-    const { error } = await supabase
-      .from("area_academica")
-      .delete()
-      .eq("id_area", area.id_area);
+  const { error } = await supabase
+    .from("area_academica")
+    .delete()
+    .eq("id_area", area.id_area);
 
-    if (error) {
-      console.error("Error al eliminar área académica:", error);
-      alert("Ocurrió un error al eliminar el área académica: " + error.message);
-      return;
+  if (error) {
+    console.error("Error al eliminar área académica:", error);
+
+    // Si la BD avisa que la FK lo impide (código 23503)
+    if (error.code === "23503") {
+      alert(
+        "No se puede eliminar esta área académica porque está siendo utilizada por una o más carreras.\n\n" +
+          "Primero reasigna o elimina las carreras que tienen asociada esta área."
+      );
+    } else {
+      alert(
+        "Ocurrió un error al eliminar el área académica: " + error.message
+      );
     }
 
-    setAreas((prev) => prev.filter((a) => a.id_area !== area.id_area));
+    return;
   }
+
+  // Si todo salió bien, actualizamos la lista en memoria
+  setAreas((prev) => prev.filter((a) => a.id_area !== area.id_area));
+}
+
 
   return (
     <main className="areas-page">
@@ -129,7 +146,8 @@ function AreasPage() {
           <p className="areas-badge">Panel de catálogo</p>
           <h1 className="areas-title">Áreas académicas</h1>
           <p className="areas-subtitle">
-            Administra las áreas académicas disponibles para asignar a los cursos.
+            Administra las áreas académicas disponibles para asignar a los
+            cursos.
           </p>
         </div>
 
@@ -152,7 +170,7 @@ function AreasPage() {
           <div className="areas-search-wrapper">
             <input
               type="text"
-              placeholder="Buscar por nombre o ID"
+              placeholder="Buscar por nombre, descripción o ID"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="areas-search-input"
@@ -175,6 +193,7 @@ function AreasPage() {
                 <tr>
                   <th>ID</th>
                   <th>Nombre del área académica</th>
+                  <th>Descripción</th>
                   <th className="areas-col-actions">Acciones</th>
                 </tr>
               </thead>
@@ -183,6 +202,7 @@ function AreasPage() {
                   <tr key={area.id_area}>
                     <td>{area.id_area}</td>
                     <td>{area.nombre_area}</td>
+                    <td>{area.descripcion || "—"}</td>
                     <td className="areas-col-actions">
                       <button
                         type="button"
