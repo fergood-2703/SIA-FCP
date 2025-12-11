@@ -1,0 +1,222 @@
+/* src/pages/DocentesPage.css */
+
+.docentes-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 40px;
+}
+
+/* HEADER -------------------------------------------------------- */
+
+.docentes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.docentes-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: #e0efff;
+  color: #1d4ed8;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.docentes-title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.docentes-subtitle {
+  margin: 6px 0 0;
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+/* Botón principal "Nuevo docente" */
+
+.docentes-btn-primary {
+  border: none;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.35);
+  transition: transform 0.12s ease, box-shadow 0.12s ease,
+    filter 0.12s ease;
+}
+
+.docentes-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 38px rgba(37, 99, 235, 0.4);
+  filter: brightness(1.02);
+}
+
+.docentes-btn-new {
+  white-space: nowrap;
+}
+
+.docentes-btn-plus {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+/* TOOLBAR ------------------------------------------------------- */
+
+.docentes-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.docentes-counter {
+  font-size: 0.86rem;
+  color: #6b7280;
+}
+
+.docentes-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.docentes-search-wrapper {
+  position: relative;
+}
+
+.docentes-search-input {
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  min-width: 220px;
+  font-size: 0.86rem;
+  outline: none;
+  background-color: #ffffff;
+}
+
+.docentes-search-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15);
+}
+
+/* TABLA --------------------------------------------------------- */
+
+.docentes-table-card {
+  margin-top: 8px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.docentes-table-wrapper {
+  overflow-x: auto;
+}
+
+.docentes-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.docentes-table thead {
+  background: #f3f4f6;
+}
+
+.docentes-table th,
+.docentes-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.docentes-table th {
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: #6b7280;
+  letter-spacing: 0.05em;
+}
+
+.docentes-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.docentes-col-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* BOTONES de acción -------------------------------------------- */
+
+.docentes-btn {
+  border-radius: 999px;
+  border: none;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.12s ease, box-shadow 0.12s ease,
+    transform 0.12s ease;
+}
+
+.docentes-btn-edit {
+  background: #e0ecff;
+  color: #1d4ed8;
+  margin-right: 6px;
+}
+
+.docentes-btn-edit:hover {
+  background: #c7d7ff;
+  transform: translateY(-1px);
+}
+
+.docentes-btn-delete {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.docentes-btn-delete:hover {
+  background: #fecaca;
+  transform: translateY(-1px);
+}
+
+/* ESTADOS ------------------------------------------------------- */
+
+.docentes-empty {
+  padding: 18px 20px;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* RESPONSIVE ---------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .docentes-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .docentes-page {
+    padding-inline: 16px;
+  }
+}
